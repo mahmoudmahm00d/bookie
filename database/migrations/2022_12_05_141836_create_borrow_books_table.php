@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\Book;
-use App\Models\Genre;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,13 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('book_genre', function (Blueprint $table) {
+        Schema::create('borrow_books', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('book_id');
-            $table->unsignedBigInteger('genre_id');
-            $table->timestamps();
+            $table->unsignedBigInteger('borrow_id');
+            $table->float('price');
+            $table->float('sale_price');
+            $table->foreign('borrow_id')->references('id')->on('borrows')->onDelete('cascade');
             $table->foreign('book_id')->references('id')->on('books')->onDelete('cascade');
-            $table->foreign('genre_id')->references('id')->on('genres')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
@@ -32,11 +32,10 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('book_genre', function (Blueprint $table) {
+        Schema::table('borrow_books', function (Blueprint $table) {
             $table->dropForeign(['book_id']);
-            $table->dropForeign(['genre_id']);
+            $table->dropForeign(['borrow_id']);
         });
-        
-        Schema::dropIfExists('book_genre');
+        Schema::dropIfExists('borrow_books');
     }
 };

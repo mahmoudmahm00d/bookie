@@ -41,10 +41,19 @@
                     @endphp
                 </dd>
             </dl>
-            <p>
-                <a href="{{ url('/books/' . $book->id . '/edit') }}" class="btn btn-primary col-md-4"
-                    rel="create book">Edit</a>
-            </p>
+            @if (\App\Services\IsAdmin::check(Auth::user()))
+                <p>
+                    <a href="{{ url('/books/' . $book->id . '/edit') }}" class="btn btn-primary col-md-4" rel="create book">
+                        Edit
+                    </a>
+                <form action="{{ url('/books/' . $book->id) }}" method="post">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" onclick="return confirm('Delete {{ $book->name }} book?')"
+                        class="btn btn-outline-danger">Delete</button>
+                </form>
+                </p>
+            @endif
         </div>
     </div>
 @endsection

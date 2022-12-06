@@ -1,13 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-    <p>
-        <a href="{{ url('/books/create') }}" target="_blank" class="btn btn-primary" rel="create bookk">Create new book</a>
-    </p>
+    @if (\App\Services\IsAdmin::check(Auth::user()))
+        <p>
+            <a href="{{ url('/books/create') }}" class="btn btn-primary" rel="create bookk">Create new book</a>
+        </p>
+    @endif
     <div>
-        <form action="{{ url('/books/create') }}" method="GET" class="form">
+        <form action="{{ url('/') }}" method="GET" class="form">
             <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Search Here">
+                <input type="text" class="form-control" name="query" id="query"
+                    placeholder="Search by book title, author, isbn, or genre ...">
                 <button type="submit" class="input-group-text btn btn-light border"><svg xmlns="http://www.w3.org/2000/svg"
                         width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                         <path
@@ -16,9 +19,26 @@
             </div>
         </form>
     </div>
-    <div class="row">
-        @foreach ($books as $book)
-            <x-book-card :book=$book></x-book-card>
-        @endforeach
-    </div>
+    @if (Auth::guest() || \App\Services\IsAdmin::check(Auth::user()))
+        <div class="row">
+            @foreach ($books as $book)
+                <x-book-card :book="$book"></x-book-card>
+            @endforeach
+        </div>
+    @else
+        <div class="row">
+            <div class="col-md-4">
+                <livewire:cart-component />
+            </div>
+            <div class="col-md-8">
+                <div class="row">
+                    @foreach ($books as $book)
+                        <div class="col-md-6 col-lg-4">
+                            <livewire:book-component :book='$book' />
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection

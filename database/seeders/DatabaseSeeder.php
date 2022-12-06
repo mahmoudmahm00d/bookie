@@ -26,6 +26,13 @@ class DatabaseSeeder extends Seeder
                 'email' => 'admin@bookstore.com',
                 'password' => Hash::make('AdminP@ssw0rd!'),
             ]);
+
+            User::create([
+                'name' => 'User1',
+                'email' => 'user1@bookstore.com',
+                'wallet' => 100,
+                'password' => Hash::make('user1password'),
+            ]);
         }
 
         if (Genre::count() == 0) {

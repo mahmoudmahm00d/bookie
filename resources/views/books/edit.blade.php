@@ -99,7 +99,7 @@
 @endsection
 
 @section('scripts')
-    <script src="{{ asset('js/jquery-3.6.1.min.js') }}"></script>
+    <script src="{{ asset('libs/jquery/jquery-3.6.1.min.js') }}"></script>
     <script src="{{ asset('libs/select2/js/select2.min.js') }}"></script>
     <script>
         (() => {
