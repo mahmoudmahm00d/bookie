@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\BorrowController;
 use App\Http\Controllers\GenreController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -20,25 +23,29 @@ use Illuminate\Support\Facades\Route;
 Auth::routes();
 
 Route::get('/', [BookController::class, 'index'])->name('home');
+Route::resource('/books', BookController::class);
+Route::resource('/genres', GenreController::class);
+Route::resource('/users', UsersController::class);
 
-Route::resource('/books',BookController::class);
+Route::get('notifications/mine', [NotificationController::class, 'mine'])->name('notification.mine');
+Route::resource('/notifications', NotificationController::class);
 
-Route::controller(GenreController::class)->group(function(){
-    Route::get('genre', 'index')->name('genre.index');
-    Route::post('genre', 'store')->name('genre.store');
-    Route::get('genre/create', 'create')->name('genre.create');
-    Route::get('genre/{product}', 'show')->name('genre.show');
-    Route::put('genre/{product}', 'update')->name('genre.update');
-    Route::delete('genre/{product}', 'destroy')->name('genre.destroy');
-    Route::get('genre/{product}/edit', 'edit')->name('genre.edit');
-});
-
-// Route::controller(BookController::class)->group(function(){
-//     Route::get('books', 'index')->name('books.index');
-//     Route::post('books', 'store')->name('books.store');
-//     Route::get('books/create', 'create')->name('books.create');
-//     Route::get('books/{product}', 'show')->name('books.show');
-//     Route::put('books/{product}', 'update')->name('books.update');
-//     Route::delete('books/{product}', 'destroy')->name('books.destroy');
-//     Route::get('books/{product}/edit', 'edit')->name('books.edit');
+// Route::controller(GenreController::class)->group(function(){
+//     Route::get('genre', 'index')->name('genre.index');
+//     Route::post('genre', 'store')->name('genre.store');
+//     Route::get('genre/create', 'create')->name('genre.create');
+//     Route::get('genre/{product}', 'show')->name('genre.show');
+//     Route::put('genre/{product}', 'update')->name('genre.update');
+//     Route::delete('genre/{product}', 'destroy')->name('genre.destroy');
+//     Route::get('genre/{product}/edit', 'edit')->name('genre.edit');
 // });
+
+Route::controller(BorrowController::class)->group(function () {
+    Route::get('borrows', 'index')->name('borrows.index');
+    Route::get('borrows/create', 'create')->name('borrows.create');
+    Route::post('borrows', 'store')->name('borrows.store');
+    Route::get('borrows/{id}/edit', 'edit')->name('borrows.edit');
+    Route::put('borrows/{id}', 'update')->name('borrows.update');
+    Route::get('borrows/mine', 'mine')->name('borrows.mine');
+    Route::get('borrows/{id}/books', 'books')->name('borrows.books');
+});
