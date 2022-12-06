@@ -26,7 +26,9 @@
                         <td>{{ $user->phone }}</td>
                         <td>{{ $user->address }}</td>
                         <td class="d-flex">
-                            <a href="/users/{{ $user->id }}/borrows" class="btn btn-outline-primary">Borrows</a>
+                            <a href="/users/{{ $user->id }}/borrows" class="btn btn-outline-primary">Borrows</a>&nbsp; |
+                            &nbsp;
+                            <a href="/users/{{ $user->id }}/edit" class="btn btn-outline-primary">Wallet</a>
                         </td>
                     </tr>
                 @endforeach

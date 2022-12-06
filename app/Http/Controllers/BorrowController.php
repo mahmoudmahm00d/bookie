@@ -22,7 +22,9 @@ class BorrowController extends Controller
             'create',
             'store',
             'mine',
-            'books'
+            'books',
+            'pay',
+            'payConfirm'
         ]);
     }
 
@@ -108,6 +110,7 @@ class BorrowController extends Controller
 
         $userToUpdate = User::find($user->id);
         $wallet = $userToUpdate->wallet - $totalPrice;
+
         // Check user wallet
         if ($wallet < 0) {
             return back()->with('error', "You Don't Have Enough Mony!");
@@ -117,8 +120,8 @@ class BorrowController extends Controller
             'user_id' => $user->id,
             'address' => $fields['address'],
             'status' => $fields['status'],
-            'started_at' => Carbon::now('Y-m-d'),
-            'deadline' => Carbon::now('Y-m-d')->addDays(15),
+            'started_at' => Carbon::now(),
+            'deadline' => Carbon::now()->addDays(15),
         ]);
 
         foreach ($cart as $id => $item) {
@@ -146,9 +149,8 @@ class BorrowController extends Controller
             throw new NotFoundHttpException();
         }
 
-        $books = BorrowBook::join('books', 'books.id', '=', 'borrow_books.id')->get(['books.*']);
-
-        return view('borrows.edit', ['borrow' => $borrow, 'books' => $books]);
+        $items = BorrowBook::with('book')->where('borrow_id', '=', $id)->get();
+        return view('borrows.edit', ['borrow' => $borrow, 'items' => $items]);
     }
 
     public function update(Request $request, $id)
@@ -163,11 +165,80 @@ class BorrowController extends Controller
             'status' => ['required']
         ]);
 
-        $fields['status'] = Str::upper($fields['status']);
+        if ($fields['status'] == 'DONE') {
+            $fields['returned_at'] = Carbon::now();
+        }
+
+        // Update on pending or waiting for payment status only!
+        if ($borrow->status == "WAITING_FOR_PAYMENT" || $borrow->status == "PENDING") {
+            $borrow->update($fields);
+        }
+
+        return redirect('/borrows')->with('message', 'Borrow Updated Successfully!');
+    }
+
+    public function pay($id)
+    {
+        $borrow = Borrow::find($id);
+
+        if (!$borrow) {
+            throw new NotFoundHttpException();
+        }
+
+        $items = BorrowBook::with('book')->where('borrow_id', '=', $id)->get();
+        return view('borrows.pay', ['borrow' => $borrow, 'items' => $items]);
+    }
+
+    public function payConfirm(Request $request, $id)
+    {
+        $borrow = Borrow::find($id);
+        if (!$borrow) {
+            throw new NotFoundHttpException();
+        }
+
+        $fields = $request->validate([
+            'password' => ['required']
+        ]);
+
+        if ($borrow->status != 'WAITING_FOR_PAYMENT') {
+            return back()->with('error', 'Can\'t Pay For This');
+        }
+
+        $fields['status'] = 'DELIVERING';
+
+        $user = Auth::user();
+        // Password required for payment check
+        $passwordValid = Auth::validate([
+            'email' => $user,
+            'password' => $request->password
+        ]);
+
+        if (!$passwordValid) {
+            return back()->with('error', 'Password Is Invalid!');
+        }
+
+        $books = BorrowBook::where('borrow_id', '=', $id)->get();
+        $totalPrice = 0.0;
+        // Calculate total cart price
+        foreach ($books as $id => $item) {
+            $totalPrice += $item->sale_price;
+        }
+
+        $userToUpdate = User::find($user->id);
+        $wallet = $userToUpdate->wallet - $totalPrice;
+
+        // Check user wallet
+        if ($wallet < 0) {
+            return back()->with('error', "You Don't Have Enough Mony!");
+        }
 
         $borrow->update($fields);
 
-        return redirect('/borrows')->with('message', 'Borrow Updated Successfully!');
+        $userToUpdate->update([
+            'wallet' => $wallet
+        ]);
+
+        return redirect('/borrows/mine')->with('message', 'Borrow Updated Successfully!');
     }
 
     // Get the user borrows

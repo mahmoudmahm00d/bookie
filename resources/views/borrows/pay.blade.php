@@ -9,44 +9,23 @@
         @endif
         <dl>
             <dt>Borrow start at</dt>
-            <dd>{{ \Carbon\Carbon::now()->toDateString() }}</dd>
+            <dd>{{ $borrow->started_at }}</dd>
             <dt>Your deadline</dt>
-            <dd>{{ \Carbon\Carbon::now()->addDays(15)->toDateString() }}</dd>
+            <dd>{{ $borrow->deadline }}</dd>
             <dt>Address</dt>
             <dd>{{ $borrow->address }}</dd>
         </dl>
-        <form action="/borrows/{{ $borrow->id }}" method="post" class="col-md-6 needs-validation"
+        <form action="/borrows/{{ $borrow->id }}/pay" method="post" class="col-md-6 needs-validation"
             enctype="multipart/form-data" novalidate>
-            @method('PUT')
             @csrf
-            <div class="mb-3">
-                <label for="status" class="form-label">Payment method</label>
-                <select class="form-select" name="status" id="status" required>
-                    <option value="WAITING_FOR_PAYMENT" {{ $borrow->status == 'WAITING_FOR_PAYMENT' ? 'selected' : '' }}>
-                        Waiting For Payment
-                    </option>
-                    <option value="PENDING" {{ $borrow->status == 'PENDING' ? 'selected' : '' }}>
-                        Pending
-                    </option>
-                    <option value="DELIVERING" {{ $borrow->status == 'DELIVERING' ? 'selected' : '' }}>
-                        Delivering
-                    </option>
-                    <option value="DONE" {{ $borrow->status == 'DONE' ? 'selected' : '' }}>
-                        Done
-                    </option>
-                </select>
-                @error('status')
-                    <p class="text-red text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-            <div class="mb-3 d-none" id="password-section">
+            <div class="mb-3" id="password-section">
                 <label for="password" class="form-label">Your passowrd</label>
                 <input type="password" class="form-control" name="password" id="password" placeholder="****">
                 @error('password')
                     <p class="text-red text-xs mt-1">{{ $message }}</p>
                 @enderror
             </div>
-            <button type="submit" class="btn btn-primary">Update Status</button>
+            <button type="submit" class="btn btn-primary">Pay</button>
         </form>
         <div class="table-responsive mt-5">
             <table class="table table-bordered table-striped table-hover">
@@ -75,21 +54,6 @@
 @section('scripts')
     <script src="{{ asset('libs/jquery/jquery-3.6.1.min.js') }}"></script>
     <script>
-        let passwordSection = $('#password-section');
-        let paymentType = $('#payment');
-        passwordSection.slideUp();
-
-        paymentType.on('change', function(event) {
-            let value = event.target.value;
-            if (value == 'CASH') {
-                console.log('here');
-                passwordSection.slideUp();
-            } else {
-                passwordSection.removeClass('d-none');
-                passwordSection.slideDown();
-            }
-        });
-
         (() => {
             'use strict'
 

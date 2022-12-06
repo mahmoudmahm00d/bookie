@@ -16,6 +16,7 @@ class Borrow extends Model
         'started_at',
         'returned_at',
         'deadline',
+        'address',
     ];
 
     protected $casts = [

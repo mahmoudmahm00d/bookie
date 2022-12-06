@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Borrow;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UsersController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('is_admin');
+        $this->middleware('auth');
+        $this->middleware('is_admin')->except('wallet');
     }
 
     /**
@@ -24,36 +28,10 @@ class UsersController extends Controller
         return view('users.index', ['users' => $users]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function borrows($id)
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
+        $borrows = Borrow::where('user_id', '=', $id)->get();
+        return view('borrows.index', ['borrows' => $borrows]);
     }
 
     /**
@@ -64,7 +42,12 @@ class UsersController extends Controller
      */
     public function edit($id)
     {
-        //
+        $user = User::find($id);
+        if (!$user) {
+            throw new NotFoundHttpException();
+        }
+
+        return view('users.edit', ['user' => $user]);
     }
 
     /**
@@ -76,17 +59,23 @@ class UsersController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $user = User::find($id);
+        if (!$user) {
+            throw new NotFoundHttpException();
+        }
+
+        $fields = $request->validate([
+            'wallet' => ['required', 'regex:((^(\d+)(\.?)(\d+)$)|^(\d)$)']
+        ]);
+
+        $user->update($fields);
+        return redirect('/users')->with('message', 'Wallet Updated Successfully!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function wallet()
     {
-        //
+        $user = Auth::user();
+        $wallet = User::find($user->id)->wallet;
+        return view('users.wallet', ['wallet' => $wallet]);
     }
 }

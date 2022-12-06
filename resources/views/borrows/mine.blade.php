@@ -22,11 +22,14 @@
                 @foreach ($borrows as $borrow)
                     <tr>
                         <td>{{ $borrow->status }}</td>
-                        <td>{{ $borrow->started_at }}</td>
-                        <td>{{ $borrow->deadline }}</td>
-                        <td>{{ $borrow->returned_at }}</td>
-                        <td class="d-flex">
-                            <a href="/borrows/{{ $borrow->id }}/books" class="btn btn-outline-primary">Books</a>
+                        <td>{{ $borrow->started_at ? date('Y-m-d', strtotime($borrow->started_at)) : '' }}</td>
+                        <td>{{ $borrow->deadline ? date('Y-m-d', strtotime($borrow->deadline)) : '' }}</td>
+                        <td>{{ $borrow->returned_at ? date('Y-m-d', strtotime($borrow->returned_at)) : 'Not returned yet.' }}
+                        </td>
+                        <td>
+                            @if (!\App\Services\IsAdmin::check(Auth::user()) && $borrow->status == 'WAITING_FOR_PAYMENT')
+                                <a href="/borrows/{{ $borrow->id }}/pay" class="btn btn-outline-primary">Pay</a>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

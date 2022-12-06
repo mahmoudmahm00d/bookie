@@ -56,6 +56,9 @@
                                 <a class="nav-link" href="{{ url('/borrows/mine') }}">Borrows</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" href="{{ url('/users/wallet') }}">Wallet</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" href="{{ url('/notifications/mine') }}">
                                     <div class="position-relative">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
