@@ -18,6 +18,7 @@ class CreateBorrowsTable extends Migration
             $table->unsignedBigInteger('user_id')->required();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('status')->comment('[ PENDING, REJECTED, ACCEPTED, RETURNED ]')->default('PENDING');
+            $table->string('address');
             $table->dateTime('started_at')->nullable();
             $table->dateTime('returned_at')->nullable();
             $table->dateTime('deadline')->nullable();

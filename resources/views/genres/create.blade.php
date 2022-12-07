@@ -2,7 +2,7 @@
 
 @section('content')
     <h3>Create genre</h3>
-    <form action="/genres/{{ $genre->id }}" method="post" class="col-md-6 needs-validation" novalidate>
+    <form action="/genres" method="post" class="col-md-6 needs-validation" novalidate>
         @csrf
         <div class="mb-3">
             <label for="name" class="form-label">Name</label>
